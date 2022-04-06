@@ -1,0 +1,14 @@
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/repository/DataRepository.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/domain/TempoTrabalhado.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/service/util/AlgoritimoUtil.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/repository/ProcessoRepository.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/ApiGblavanderiaApplication.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/domain/Maquina.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/domain/OrdemProcesso.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/repository/MaquinaRepository.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/repository/OrdemProcessoRepository.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/domain/Processo.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/service/CromossomoService.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/resource/CromossomoResource.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/service/SequenciamentoProcessoService.java
+/home/basis/Documentos/projetos/api-gblavanderia/src/main/java/br/com/ifes/apigblavanderia/domain/Cromossomo.java

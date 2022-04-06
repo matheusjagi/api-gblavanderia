@@ -1,0 +1,14 @@
+br/com/ifes/apigblavanderia/domain/Maquina.class
+br/com/ifes/apigblavanderia/repository/ProcessoRepository.class
+br/com/ifes/apigblavanderia/domain/Cromossomo.class
+br/com/ifes/apigblavanderia/repository/OrdemProcessoRepository.class
+br/com/ifes/apigblavanderia/resource/CromossomoResource.class
+br/com/ifes/apigblavanderia/repository/MaquinaRepository.class
+br/com/ifes/apigblavanderia/domain/Processo.class
+br/com/ifes/apigblavanderia/service/util/AlgoritimoUtil.class
+br/com/ifes/apigblavanderia/domain/OrdemProcesso.class
+br/com/ifes/apigblavanderia/domain/TempoTrabalhado.class
+br/com/ifes/apigblavanderia/service/CromossomoService.class
+br/com/ifes/apigblavanderia/ApiGblavanderiaApplication.class
+br/com/ifes/apigblavanderia/service/SequenciamentoProcessoService.class
+br/com/ifes/apigblavanderia/repository/DataRepository.class
