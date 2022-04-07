@@ -17,7 +17,7 @@ public class CromossomoResource {
 
     @GetMapping
     public ResponseEntity<Void> otimizacaoPrioridadeOP() {
-        cromossomoService.testeSequenciamento();
+//        cromossomoService.testeSequenciamento();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
