@@ -7,7 +7,6 @@ import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
 import br.com.ifes.apigblavanderia.domain.Processo;
 import br.com.ifes.apigblavanderia.domain.TempoTrabalhado;
 import br.com.ifes.apigblavanderia.service.util.AlgoritimoUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class SequenciamentoService {
 
