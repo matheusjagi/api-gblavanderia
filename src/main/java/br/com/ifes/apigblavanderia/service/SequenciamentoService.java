@@ -58,7 +58,7 @@ public class SequenciamentoService {
         maquinas.forEach(maquina -> maquina.setTempoTrabalhado(new TempoTrabalhado(LocalDate.now())));
     }
 
-    private void setAvalicaoCromossomo(Cromossomo cromossomo) {
+    public void setAvalicaoCromossomo(Cromossomo cromossomo) {
         cromossomo.setAvaliacao(cromossomo.getGenes().stream().mapToLong(OrdemProcesso::getDiasAtraso).sum());
     }
 
