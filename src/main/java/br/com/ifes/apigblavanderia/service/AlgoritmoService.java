@@ -4,6 +4,7 @@ import br.com.ifes.apigblavanderia.domain.Cromossomo;
 import br.com.ifes.apigblavanderia.domain.Maquina;
 import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
 import br.com.ifes.apigblavanderia.domain.Processo;
+import br.com.ifes.apigblavanderia.repository.CapacidadeMaquinaRepository;
 import br.com.ifes.apigblavanderia.repository.MaquinaRepository;
 import br.com.ifes.apigblavanderia.repository.OrdemProcessoRepository;
 import br.com.ifes.apigblavanderia.repository.ProcessoRepository;
@@ -14,10 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -25,45 +23,33 @@ import java.util.stream.Stream;
 public class AlgoritmoService {
 
     public static final Integer PORCENTAGEM_CRUZAMENTO = 20;
-    public static final Integer PORCENTAGEM_MUTACAO = 20;
-
-    private List<OrdemProcesso> ordemProcessos = new ArrayList<>();
-    private List<Processo> processos = new ArrayList<>();
-    private List<Maquina> maquinas = new ArrayList<>();
+    public static final Integer PORCENTAGEM_MUTACAO = 15;
 
     private final OrdemProcessoRepository ordemProcessoRepository;
     private final ProcessoRepository processoRepository;
     private final MaquinaRepository maquinaRepository;
+    private final CapacidadeMaquinaRepository capacidadeMaquinaRepository;
     private final PopulacaoService populacaoService;
     private final CruzamentoService cruzamentoService;
     private final SelecaoService selecaoService;
     private final MutacaoService mutacaoService;
 
-    public void abasteceTodasBasesDeDados() {
-        processos = processoRepository.abasteceBaseDados();
-        ordemProcessos = ordemProcessoRepository.abasteceBaseDados();
+    public void abasteceTodasBasesDeDados(List<OrdemProcesso> ordemProcessos, List<Processo> processos, List<Maquina> maquinas) {
         maquinas = maquinaRepository.abasteceBaseDados();
-
-        ordemProcessos.forEach(op -> op.setProcessos(getProcessosOP(op.getId())));
-        maquinas.forEach(op -> op.setProcessosQueRealiza(getProcessosMaquina(op.getId())));
+        capacidadeMaquinaRepository.abasteceBaseDados(maquinas);
+        processos = processoRepository.abasteceBaseDados();
+        ordemProcessos = ordemProcessoRepository.abasteceBaseDados(processos);
 
         log.info("Bases de dados preenchidas com sucesso!");
     }
 
-    private List<Processo> getProcessosOP(Integer ordemProcessoId) {
-        return processos.stream()
-                .filter(processo -> processo.getOrdemProcessoId().equals(ordemProcessoId))
-                .collect(Collectors.toList());
-    }
-
-    private List<Processo> getProcessosMaquina(Integer maquinaId) {
-        return processos.stream()
-                .filter(processo -> processo.getMaquinaId().equals(maquinaId))
-                .collect(Collectors.toList());
-    }
-
     public Long evolucao(Integer tamanhoInicialPopulacao, Integer evolucoes) {
-        abasteceTodasBasesDeDados();
+        List<OrdemProcesso> ordemProcessos = new ArrayList<>();
+        List<Processo> processos = new ArrayList<>();
+        List<Maquina> maquinas = new ArrayList<>();
+
+        abasteceTodasBasesDeDados(ordemProcessos, processos, maquinas);
+
         List<Cromossomo> populacao = populacaoService.inicializaPopulacao(ordemProcessos, maquinas, tamanhoInicialPopulacao);
         AtomicInteger tamanhoPopulacao = new AtomicInteger(0);
 

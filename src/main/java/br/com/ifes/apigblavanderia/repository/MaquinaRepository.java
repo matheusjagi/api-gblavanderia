@@ -25,10 +25,7 @@ public class MaquinaRepository extends DataRepository<Maquina> {
             return Files.lines(Paths.get(getUrlArquivoCSV("maquinas.csv")), StandardCharsets.ISO_8859_1)
                     .skip(1)
                     .map(line -> line.split(";"))
-                    .map(col -> new Maquina(
-                            Integer.valueOf(col[1]),
-                            col[3],
-                            Integer.valueOf(col[2])))
+                    .map(col -> new Maquina(Integer.valueOf(col[0]), col[1]))
                     .collect(Collectors.toList());
 
         } catch (IOException error) {

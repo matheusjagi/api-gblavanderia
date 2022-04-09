@@ -19,23 +19,17 @@ public class ProcessoRepository extends DataRepository<Processo> {
 
     @Override
     public List<Processo> abasteceBaseDados() {
-//        try {
-//            log.info("Preenchendo base de dados de PROCESSOS...");
-//
-//            return Files.lines(Paths.get(getUrlArquivoCSV("processos.csv")), StandardCharsets.ISO_8859_1)
-//                    .skip(1)
-//                    .map(line -> line.split(";"))
-//                    .map(col -> new Processo(Integer.valueOf(col[1]),
-//                            col[2],
-//                            Integer.valueOf(col[3]),
-//                            Integer.valueOf(col[4]),
-//                            Integer.valueOf(col[5])))
-//                    .collect(Collectors.toList());
-//
-//        } catch (IOException error) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Erro ao preencher a base de dados de Processos");
-//        }
+        try {
+            log.info("Preenchendo base de dados de PROCESSOS...");
 
-        return null;
+            return Files.lines(Paths.get(getUrlArquivoCSV("processos.csv")), StandardCharsets.ISO_8859_1)
+                    .skip(1)
+                    .map(line -> line.split(";"))
+                    .map(col -> new Processo(Integer.valueOf(col[0]), col[1]))
+                    .collect(Collectors.toList());
+
+        } catch (IOException error) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Erro ao preencher a base de dados de Processos");
+        }
     }
 }

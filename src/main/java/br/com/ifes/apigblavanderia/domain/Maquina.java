@@ -14,7 +14,7 @@ public class Maquina {
 
     private Integer id;
 
-    private String nome;
+    private String descricao;
 
     private Integer producaoMaximaPorHora;
 
@@ -22,9 +22,8 @@ public class Maquina {
 
     private TempoTrabalhado tempoTrabalhado;
 
-    public Maquina(Integer id, String nome, Integer producaoMaximaPorHora) {
+    public Maquina(Integer id, String descricao) {
         this.id = id;
-        this.nome = nome;
-        this.producaoMaximaPorHora = producaoMaximaPorHora;
+        this.descricao = descricao;
     }
 }

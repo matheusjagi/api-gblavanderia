@@ -22,4 +22,10 @@ public class AlgoritmoResource {
                                        @PathVariable("quantidadeEvolucoes") Integer quantidadeEvolucoes) {
         algoritmoService.evolucao(tamanhoInicialPopulacao, quantidadeEvolucoes);
     }
+
+    @GetMapping("/csv")
+    @ResponseStatus(HttpStatus.OK)
+    public void testeLeituraCSV() {
+        algoritmoService.testeLeituraCSV();
+    }
 }

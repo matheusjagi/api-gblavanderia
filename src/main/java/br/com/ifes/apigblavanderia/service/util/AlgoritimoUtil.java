@@ -6,10 +6,14 @@ import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -81,5 +85,10 @@ public final class AlgoritimoUtil {
     public static Boolean verificaSequeciamentoIgual(AtomicInteger sequenciamento, Cromossomo cromossomo) {
         return cromossomo.getGenes().stream()
                 .anyMatch(obj -> Objects.equals(sequenciamento.get(), obj.getSequenciamento()));
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }

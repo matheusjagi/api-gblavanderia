@@ -30,7 +30,7 @@ public class PopulacaoService {
                 .limit(tamanhoPopulacao)
                 .collect(Collectors.toList());
 
-        sequenciamentoService.sequenciaPorOrdemProcesso(maquinas, populacao);
+        sequenciamentoService.sequenciamentoPorOrdemDeProcesso(maquinas, populacao);
         AlgoritimoUtil.ordenaPorMelhorAvaliacao(populacao);
         return populacao;
     }

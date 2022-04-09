@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class SequenciamentoService {
 
-    public void sequenciaPorOrdemProcesso(List<Maquina> maquinas, List<Cromossomo> populacao) {
+    public void sequenciamentoPorOrdemDeProcesso(List<Maquina> maquinas, List<Cromossomo> populacao) {
         log.info("Realizando SEQUENCIAMENTO dos PROCESSOS...");
 
         populacao.forEach(cromossomo -> {
