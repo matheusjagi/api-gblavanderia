@@ -4,6 +4,7 @@ br/com/ifes/apigblavanderia/domain/Cromossomo.class
 br/com/ifes/apigblavanderia/repository/OrdemProcessoRepository.class
 br/com/ifes/apigblavanderia/resource/CromossomoResource.class
 br/com/ifes/apigblavanderia/repository/MaquinaRepository.class
+br/com/ifes/apigblavanderia/domain/Minuto.class
 br/com/ifes/apigblavanderia/domain/Processo.class
 br/com/ifes/apigblavanderia/service/util/AlgoritimoUtil.class
 br/com/ifes/apigblavanderia/domain/OrdemProcesso.class
