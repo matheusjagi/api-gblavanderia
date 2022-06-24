@@ -26,19 +26,28 @@ public class CapacidadeMaquinaRepository extends DataRepository<Maquina> {
             Files.lines(Paths.get(getUrlArquivoCSV("capacidadeHora.csv")), StandardCharsets.ISO_8859_1)
                     .skip(1)
                     .map(line -> line.split(";"))
-                    .filter(AlgoritimoUtil.distinctByKey(col -> col[0]))
                     .forEach(col -> {
                         Integer maquinaId = Integer.valueOf(col[0]);
+                        Integer processoId = Integer.valueOf(col[1]);
                         Integer producaoHora = Integer.valueOf(col[2]);
 
                         maquinas.stream()
                                 .filter(maquina -> Objects.equals(maquina.getId(), maquinaId))
                                 .findFirst()
-                                .ifPresent(maquina -> maquina.setProducaoMaximaPorHora(producaoHora));
+                                .ifPresent(maquina -> {
+                                    maquina.setProducaoMaximaPorHora(producaoHora);
+                                    setProcessoRealizadoPelaMaquina(processoId, maquina);
+                                });
                     });
 
         } catch (IOException error) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Erro ao preencher a base de dados das Capacidades das Máquinas");
+        }
+    }
+
+    private void setProcessoRealizadoPelaMaquina(Integer processoId, Maquina maquina) {
+        if (maquina.getProcessosQueRealiza().stream().noneMatch(processo -> processo.equals(processoId))) {
+            maquina.getProcessosQueRealiza().add(processoId);
         }
     }
 

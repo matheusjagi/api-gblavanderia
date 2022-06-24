@@ -18,7 +18,7 @@ public class Maquina {
 
     private Integer producaoMaximaPorHora;
 
-    private List<Processo> processosQueRealiza = new ArrayList<>();
+    private List<Integer> processosQueRealiza = new ArrayList<>();
 
     private TempoTrabalhado tempoTrabalhado;
 

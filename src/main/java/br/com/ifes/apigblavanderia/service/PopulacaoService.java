@@ -37,6 +37,9 @@ public class PopulacaoService {
 
     public List<Cromossomo> miLambda(List<Cromossomo> populacao, Integer tamanhoPopulacaoInicial){
         AlgoritimoUtil.ordenaPorMelhorAvaliacao(populacao);
-        return populacao.stream().limit(tamanhoPopulacaoInicial).collect(Collectors.toCollection(ArrayList::new));
+
+        return populacao.stream()
+                .limit(tamanhoPopulacaoInicial)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

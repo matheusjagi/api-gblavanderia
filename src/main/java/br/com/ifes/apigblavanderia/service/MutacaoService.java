@@ -17,5 +17,7 @@ public class MutacaoService {
                 AlgoritimoUtil.trocaPosicaoDeSequencimentoDosGenes(cromossomo, tamanhoGenes);
             }
         });
+
+        AlgoritimoUtil.ordenaCromossomoPorOrdemDeSequenciamento(cromossomo);
     }
 }

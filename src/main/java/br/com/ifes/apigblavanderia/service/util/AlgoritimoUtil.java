@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public final class AlgoritimoUtil {
 
-    public static final Integer DIA_TRABALHADO_EM_MINUTOS = 480;
+    public static final Long DIA_TRABALHADO_EM_MINUTOS = 480L;
 
     private AlgoritimoUtil() {
         throw new IllegalStateException("Classe utilitária");
@@ -44,16 +44,22 @@ public final class AlgoritimoUtil {
                 .collect(Collectors.toList());
     }
 
+    public static List<Minuto> criaSemanaTrabalhadaEmMinutos() {
+        return Stream.generate(Minuto::new)
+                .limit(DIA_TRABALHADO_EM_MINUTOS * 5)
+                .collect(Collectors.toList());
+    }
+
     public static void ordenaCromossomoPorOrdemDeSequenciamento(Cromossomo cromossomo) {
         cromossomo.getGenes().sort(Comparator.comparing(OrdemProcesso::getSequenciamento));
     }
 
     public static void ordenaPorPiorAvaliacao(List<Cromossomo> cromossomos) {
-        cromossomos.sort(Comparator.comparing(Cromossomo::getAvaliacao));
+        cromossomos.sort(Comparator.comparing(Cromossomo::getAvaliacao).reversed());
     }
 
     public static void ordenaPorMelhorAvaliacao(List<Cromossomo> cromossomos) {
-        cromossomos.sort(Comparator.comparing(Cromossomo::getAvaliacao).reversed());
+        cromossomos.sort(Comparator.comparing(Cromossomo::getAvaliacao));
     }
 
     public static void trocaPosicaoDeSequencimentoDosGenes(Cromossomo cromossomo, Integer tamanhoGenes) {
@@ -68,27 +74,27 @@ public final class AlgoritimoUtil {
     }
 
     public static void defineSequenciamentoAleatorioDosGenes(Integer quantidadeOrdemProcessos, Cromossomo cromossomo) {
+        resetaSequenciamento(cromossomo);
         cromossomo.getGenes().forEach(gen -> sortearSequenciamento(quantidadeOrdemProcessos, cromossomo, gen));
         ordenaCromossomoPorOrdemDeSequenciamento(cromossomo);
     }
 
+    private static void resetaSequenciamento(Cromossomo cromossomo) {
+        cromossomo.getGenes().forEach(gen -> gen.setSequenciamento(0));
+    }
+
     public static void sortearSequenciamento(Integer quantidadeOrdemProcessos, Cromossomo cromossomo, OrdemProcesso gen) {
-        AtomicInteger sequenciamento = new AtomicInteger();
+        Integer sequenciamento;
 
         do {
-            sequenciamento.set(AlgoritimoUtil.sortearNumero(1, quantidadeOrdemProcessos));
+            sequenciamento = AlgoritimoUtil.sortearNumero(1, quantidadeOrdemProcessos);
         } while (verificaSequeciamentoIgual(sequenciamento, cromossomo));
 
-        gen.setSequenciamento(sequenciamento.get());
+        gen.setSequenciamento(sequenciamento);
     }
 
-    public static Boolean verificaSequeciamentoIgual(AtomicInteger sequenciamento, Cromossomo cromossomo) {
+    public static Boolean verificaSequeciamentoIgual(Integer sequenciamento, Cromossomo cromossomo) {
         return cromossomo.getGenes().stream()
-                .anyMatch(obj -> Objects.equals(sequenciamento.get(), obj.getSequenciamento()));
-    }
-
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+                .anyMatch(obj -> Objects.equals(sequenciamento, obj.getSequenciamento()));
     }
 }

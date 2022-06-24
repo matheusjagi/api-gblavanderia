@@ -22,6 +22,10 @@ import java.util.stream.IntStream;
 @Slf4j
 public class SequenciamentoService {
 
+    public static final Integer DAY = 1;
+    public static final Integer WEEK = 5;
+    public static final Integer HOUR_IN_MINUTES = 60;
+
     public void sequenciamentoPorOrdemDeProcesso(List<Maquina> maquinas, List<Cromossomo> populacao) {
         log.info("Realizando SEQUENCIAMENTO dos PROCESSOS...");
 
@@ -79,7 +83,7 @@ public class SequenciamentoService {
                 tentaAlocarProcessoNaMaquina(processo, processoAlocado, maquina, minutosGastosComProcesso, terminoUltimoProcesso);
 
                 if (!processoAlocado.get()) {
-                    adicionaUmDiaDeTrabalhoNaMaquina(maquina);
+                    adicionaUmaSemanaDeTrabalhoNaMaquina(maquina);
                 }
             });
         }
@@ -87,25 +91,35 @@ public class SequenciamentoService {
 
     private void adicionaUmDiaDeTrabalhoNaMaquina(Maquina maquina) {
         maquina.getTempoTrabalhado().getTempo().addAll(AlgoritimoUtil.criaDiaTrabalhadoEmMinutos());
-        maquina.getTempoTrabalhado().setTotalDiasTrabalhados(maquina.getTempoTrabalhado().getTotalDiasTrabalhados() + 1);
+        maquina.getTempoTrabalhado().setTotalDiasTrabalhados(maquina.getTempoTrabalhado().getTotalDiasTrabalhados() + DAY);
+    }
+
+    private void adicionaUmaSemanaDeTrabalhoNaMaquina(Maquina maquina) {
+        maquina.getTempoTrabalhado().getTempo().addAll(AlgoritimoUtil.criaSemanaTrabalhadaEmMinutos());
+        maquina.getTempoTrabalhado().setTotalDiasTrabalhados(maquina.getTempoTrabalhado().getTotalDiasTrabalhados() + WEEK);
     }
 
     private void tentaAlocarProcessoNaMaquina(Processo processo, AtomicBoolean processoAlocado, Maquina maquina,
                                               Integer minutosGastosComProcesso, AtomicInteger terminoUltimoProcesso) {
-        maquina.getTempoTrabalhado().getTempo().stream()
-                .filter(minuto -> !minuto.getUsado())
-                .forEach(minuto -> {
-                    Integer tamanhoTempoTrabalhado = maquina.getTempoTrabalhado().getTempo().size() - 1;
-                    Integer indexMinuto = maquina.getTempoTrabalhado().getTempo().indexOf(minuto);
-                    Integer indexComecoProcesso = terminoUltimoProcesso.get() + indexMinuto;
-                    Integer indexFinalProcesso = indexComecoProcesso + minutosGastosComProcesso - 1;
 
-                    if (indexFinalProcesso <= tamanhoTempoTrabalhado) {
+        Integer tamanhoTempoTrabalhado = maquina.getTempoTrabalhado().getTempo().size() - 1;
+        AtomicBoolean terminoProcessoMaiorQueTempo = new AtomicBoolean(true);
+
+        maquina.getTempoTrabalhado().getTempo().stream()
+                .skip(terminoUltimoProcesso.get())
+                .filter(minuto -> !minuto.getUsado())
+                .takeWhile(t -> terminoProcessoMaiorQueTempo.get() && !processoAlocado.get())
+                .forEach(minuto -> {
+                    Integer indexMinuto = maquina.getTempoTrabalhado().getTempo().indexOf(minuto);
+                    Integer indexFinalProcesso = indexMinuto + minutosGastosComProcesso - 1;
+                    terminoProcessoMaiorQueTempo.set(indexFinalProcesso <= tamanhoTempoTrabalhado);
+
+                    if (terminoProcessoMaiorQueTempo.get()) {
                         List<Minuto> tempoProcesso = maquina.getTempoTrabalhado().getTempo()
-                                .subList(indexComecoProcesso, indexFinalProcesso);
+                                .subList(indexMinuto, indexFinalProcesso);
 
                         if (tempoProcesso.stream().noneMatch(Minuto::getUsado)) {
-                            setMinutosTrabalhados(maquina, indexComecoProcesso, indexFinalProcesso, terminoUltimoProcesso);
+                            setMinutosTrabalhados(maquina, indexMinuto, indexFinalProcesso, terminoUltimoProcesso);
                             processo.setMaquinaAlocada(maquina);
                             processoAlocado.set(true);
                         }
@@ -127,7 +141,7 @@ public class SequenciamentoService {
     }
 
     private int getMinutosGastosComProcesso(Integer quantidadePecas, Integer producaoMaximaPorHora) {
-        return (60 * quantidadePecas) / producaoMaximaPorHora;
+        return (HOUR_IN_MINUTES * quantidadePecas) / producaoMaximaPorHora;
     }
 
     private void setMinutosTrabalhados(Maquina maquina, Integer indexComecoProcesso, Integer indexFinalProcesso, AtomicInteger terminoUltimoProcesso) {
@@ -146,7 +160,7 @@ public class SequenciamentoService {
                 .filter(maquina ->
                     maquina.getProcessosQueRealiza()
                             .stream()
-                            .anyMatch(processoRealizado -> processoRealizado.getId().equals(processo.getId()))
+                            .anyMatch(processoRealizado -> processoRealizado.equals(processo.getId()))
                 )
                 .toList();
     }
