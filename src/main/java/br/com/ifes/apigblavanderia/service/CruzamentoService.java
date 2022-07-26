@@ -23,28 +23,29 @@ public class CruzamentoService {
         Integer tamanhoPais = pais.size();
         Integer tamanhoGenes = pais.get(0).getGenes().size();
 
-        List<OrdemProcesso> cromossomoVerificador = new ArrayList<>(tamanhoPais);
         Cromossomo filhoGerado = new Cromossomo();
 
         IntStream.range(0, tamanhoGenes).forEach(index -> {
+            List<OrdemProcesso> cromossomoVerificador = new ArrayList<>();
+
             IntStream.range(0, tamanhoPais).forEach(iterator ->
                 cromossomoVerificador.add(pais.get(iterator).getGenes().get(index).clone())
             );
 
             cromossomoVerificador.stream()
                     .min(Comparator.comparing(OrdemProcesso::getDiasAtraso))
-                    .ifPresent(op -> filhoGerado.getGenes().set(index, op));
+                    .ifPresent(op -> filhoGerado.getGenes().add(index, op.clone()));
         });
 
         trocaSequenciamentosIguais(tamanhoGenes, filhoGerado);
-
+        AlgoritimoUtil.ordenaCromossomoPorOrdemDeSequenciamento(filhoGerado);
         sequenciamentoService.setAvalicaoCromossomo(filhoGerado);
         return filhoGerado;
     }
 
     private void trocaSequenciamentosIguais(Integer tamanhoGenes, Cromossomo filhoGerado) {
         filhoGerado.getGenes().forEach(gen -> {
-            if (AlgoritimoUtil.verificaSequeciamentoIgual(new AtomicInteger(gen.getSequenciamento()), filhoGerado)) {
+            if (AlgoritimoUtil.verificaSequeciamentoIgual(gen.getSequenciamento(), filhoGerado)) {
                 resorteiaSequenciamentoConsiderandoDiasDeAtraso(tamanhoGenes, filhoGerado, gen);
             }
         });

@@ -18,4 +18,9 @@ public class Cromossomo implements Serializable {
     private List<OrdemProcesso> genes = new ArrayList<>();
 
     private Long avaliacao;
+
+    public Cromossomo(Cromossomo pai) {
+        pai.getGenes().forEach(gen -> this.getGenes().add(gen.clone()));
+        this.avaliacao = pai.getAvaliacao();
+    }
 }
