@@ -97,4 +97,10 @@ public final class AlgoritimoUtil {
         return cromossomo.getGenes().stream()
                 .anyMatch(obj -> Objects.equals(sequenciamento, obj.getSequenciamento()));
     }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor)
+    {
+        Map<Object, Boolean> map = new ConcurrentHashMap<>();
+        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
 }

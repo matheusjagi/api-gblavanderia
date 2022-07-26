@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +26,7 @@ public class SequenciamentoService {
     public static final Integer DAY = 1;
     public static final Integer WEEK = 5;
     public static final Integer HOUR_IN_MINUTES = 60;
+    public static final LocalDate DATA_EXECUCAO_SEQUENCIAMENTO = LocalDate.of(2022, Month.MAY, 2);
 
     public void sequenciamentoPorOrdemDeProcesso(List<Maquina> maquinas, List<Cromossomo> populacao) {
         log.info("Realizando SEQUENCIAMENTO dos PROCESSOS...");
@@ -57,7 +59,7 @@ public class SequenciamentoService {
     }
 
     private void reinciaTempoTrabalhadoDasMaquinas(List<Maquina> maquinas) {
-        maquinas.forEach(maquina -> maquina.setTempoTrabalhado(new TempoTrabalhado(LocalDate.now())));
+        maquinas.forEach(maquina -> maquina.setTempoTrabalhado(new TempoTrabalhado(DATA_EXECUCAO_SEQUENCIAMENTO)));
     }
 
     public void setAvalicaoCromossomo(Cromossomo cromossomo) {
@@ -128,7 +130,7 @@ public class SequenciamentoService {
     }
 
     private void inicializaTrabalhoDaMaquina(Processo processo, Maquina maquina, AtomicInteger terminoUltimoProcesso) {
-        maquina.setTempoTrabalhado(new TempoTrabalhado(LocalDate.now()));
+        maquina.setTempoTrabalhado(new TempoTrabalhado(DATA_EXECUCAO_SEQUENCIAMENTO));
         Integer minutosGastosComProcesso = getMinutosGastosComProcesso(processo.getQuantidadePecas(), maquina.getProducaoMaximaPorHora());
 
         if (terminoUltimoProcesso.get() == 0) {

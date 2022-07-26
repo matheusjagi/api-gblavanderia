@@ -9,35 +9,23 @@ import br.com.ifes.apigblavanderia.repository.MaquinaRepository;
 import br.com.ifes.apigblavanderia.repository.OrdemProcessoRepository;
 import br.com.ifes.apigblavanderia.repository.ProcessoRepository;
 import br.com.ifes.apigblavanderia.service.util.AlgoritimoUtil;
+import br.com.ifes.apigblavanderia.service.util.LogUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AlgoritmoService {
 
-    public static final Integer PORCENTAGEM_CRUZAMENTO = 20;
-    public static final Integer PORCENTAGEM_MUTACAO = 20;
-    public static final Integer QUANTIDADE_PAIS_SELECIONADOS = 7;
-    public static final String PATH_FILE_TXT = "C:\\Users\\matheus.jagi\\Documents\\TCF Pós\\logs\\8-log-POPULACAO[50]-EVOLUCOES[200].txt";
-
-    public static final String PATH_POPULACAO_TXT = "C:\\Users\\matheus.jagi\\Documents\\TCF Pós\\logs\\populacao.txt";
-
-    public static final String PATH_NOVA_POPULACAO_TXT = "C:\\Users\\matheus.jagi\\Documents\\TCF Pós\\logs\\nova-populacao.txt";
+    public static final Integer PORCENTAGEM_CRUZAMENTO = 30;
+    public static final Integer PORCENTAGEM_MUTACAO = 30;
+    public static final Integer QUANTIDADE_PAIS_SELECIONADOS = 9;
 
     private final OrdemProcessoRepository ordemProcessoRepository;
     private final ProcessoRepository processoRepository;
@@ -68,57 +56,35 @@ public class AlgoritmoService {
 
             sequenciamentoService.sequenciamentoPorOrdemDeProcesso(maquinas, novaPopulacao);
 
-            escreveLogPopulacao(populacao, PATH_POPULACAO_TXT, iteracao);
-            escreveLogPopulacao(novaPopulacao, PATH_NOVA_POPULACAO_TXT, iteracao);
+            LogUtil.escreveLogPopulacao(populacao, LogUtil.PATH_POPULACAO_TXT, iteracao);
+            LogUtil.escreveLogPopulacao(novaPopulacao, LogUtil.PATH_NOVA_POPULACAO_TXT, iteracao);
 
-            populacao.addAll(novaPopulacao);
-            populacao = populacaoService.miLambda(populacao, tamanhoInicialPopulacao);
+            populacao = populacaoService.elitismo(populacao, novaPopulacao, tamanhoInicialPopulacao);
 
-            escreveLog(populacao, iteracao);
+            LogUtil.escreveLog(populacao, iteracao);
         }
 
         return populacao.get(0).getAvaliacao();
     }
 
-    private void escreveLog(List<Cromossomo> populacao, int iteracao) throws IOException {
-        String content = LocalDateTime.now() + " | " +
-                "Evolução [" + iteracao + "] | " +
-                "Melhor avaliação [" + populacao.get(0).getAvaliacao() + "] | " +
-                "Pior avaliação [" + populacao.get(populacao.size() - 1).getAvaliacao() + "]\n";
-
-        log.info(content);
-
-        Files.writeString(Paths.get(PATH_FILE_TXT), content, CREATE, APPEND);
-    }
-
-    private void escreveLogPopulacao(List<Cromossomo> populacao, String path, Integer evolucao) throws IOException {
-        String title = "=============================[EVOLUÇÃO "+ evolucao +"]=============================\n\n";
-
-        String avalicoes = populacao.stream()
-                .sorted(Comparator.comparing(Cromossomo::getAvaliacao))
-                .map(pop -> String.format("[%d] Avaliação: %d", populacao.indexOf(pop) + 1, pop.getAvaliacao()))
-                .collect(Collectors.joining("\n"));
-
-        String content = title.concat(avalicoes).concat("\n\n");
-
-        Files.writeString(Paths.get(path), content, CREATE, APPEND);
-    }
-
     private void processoSelecaoParaAdicionarNovoIndividuoNaPopulacao(List<Cromossomo> novaPopulacao, List<Cromossomo> pais) {
-        if (AlgoritimoUtil.sortearPorcentagem() > PORCENTAGEM_CRUZAMENTO) {
+        if (AlgoritimoUtil.sortearPorcentagem() <= PORCENTAGEM_CRUZAMENTO) {
             Cromossomo filho = cruzamentoService.crossoverBaseadoEmMaioria(pais);
 
             if (AlgoritimoUtil.sortearPorcentagem() <= PORCENTAGEM_MUTACAO) {
                 mutacaoService.mutacao(filho);
             }
 
-            //Implementar método para parar a conversão genética
             novaPopulacao.add(filho);
             return;
         }
 
         pais.stream()
             .findAny()
-            .ifPresent(pai -> novaPopulacao.add(new Cromossomo(pai)));
+            .ifPresent(pai -> {
+                Cromossomo novoPai = new Cromossomo(pai);
+                mutacaoService.mutacao(novoPai);
+                novaPopulacao.add(novoPai);
+            });
     }
 }
