@@ -1,19 +1,18 @@
 package br.com.ifes.apigblavanderia.repository;
 
-import br.com.ifes.apigblavanderia.domain.Maquina;
-import br.com.ifes.apigblavanderia.service.util.AlgoritimoUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
+
+import br.com.ifes.apigblavanderia.domain.Maquina;
+import lombok.extern.slf4j.Slf4j;
 
 @Repository
 @Slf4j

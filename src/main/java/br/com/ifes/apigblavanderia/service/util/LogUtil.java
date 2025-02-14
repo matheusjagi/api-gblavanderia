@@ -1,54 +1,71 @@
 package br.com.ifes.apigblavanderia.service.util;
 
-import br.com.ifes.apigblavanderia.domain.Cromossomo;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
+import org.springframework.stereotype.Component;
 
+import br.com.ifes.apigblavanderia.config.ApplicationProperties;
+import br.com.ifes.apigblavanderia.domain.Cromossomo;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Component
+@RequiredArgsConstructor
 @Slf4j
 public class LogUtil {
 
-    public static final String PATH_FILE_TXT = "C:\\Users\\matheus.jagi\\Documents\\TCF Pós\\logs\\refazendo\\POPULACAO[100]-EVOLUCOES[100].txt";
+    public static final Path PATH_FILE_TXT = Paths.get("result", "evolucoes-avaliacoes.txt");
+    public static final Path PATH_POPULACAO_TXT = Paths.get("result", "populacao.txt");
+    public static final Path PATH_NOVA_POPULACAO_TXT = Paths.get("result", "nova-populacao.txt");
 
-    public static final String PATH_POPULACAO_TXT = "C:\\Users\\matheus.jagi\\Documents\\TCF Pós\\logs\\refazendo\\populacao.txt";
+    private final ApplicationProperties env;
 
-    public static final String PATH_NOVA_POPULACAO_TXT = "C:\\Users\\matheus.jagi\\Documents\\TCF Pós\\logs\\refazendo\\nova-populacao.txt";
-
-    private LogUtil() {
-        throw new IllegalStateException("Classe utilitária");
-    }
-
-    public static void escreveLog(List<Cromossomo> populacao, int iteracao) throws IOException {
-        String content = LocalDateTime.now() + " | " +
+    public void escreveLog(List<Cromossomo> populacao, int iteracao, int quantidadeEvolucoes) throws IOException {
+        String content = LocalDateTime.now().format(env.getDateTimeFormat()) + " | " +
                 "Evolução [" + iteracao + "] | " +
                 "Melhor avaliação [" + populacao.get(0).getAvaliacao() + "] | " +
                 "Pior avaliação [" + populacao.get(populacao.size() - 1).getAvaliacao() + "]\n";
 
+        if (iteracao == 0) {
+            String title = String.format("Processo de otimização realizado em [%s] com: \n\t- POPULAÇÃO INICIAL [%d]\n\t- QUANTIDADE DE EVOLUÇÕES [%d]\n\n",
+                LocalDateTime.now().format(env.getDateTimeFormat()), populacao.size(), quantidadeEvolucoes);
+
+            content = title.concat(content);
+        }
+
+        if (iteracao == quantidadeEvolucoes - 1) {
+            content = String.format("%s\nProcesso de sequenciamento finalizado em [%s]\n\t- MELHOR AVALIAÇÃO ATINGIDA: %d\n\n\f",
+                content, LocalDateTime.now().format(env.getDateTimeFormat()), populacao.get(0).getAvaliacao());
+        }
+
         log.info(content);
 
-        Files.writeString(Paths.get(PATH_FILE_TXT), content, CREATE, APPEND);
+        Files.createDirectories(PATH_FILE_TXT.getParent());
+
+        Files.writeString(PATH_FILE_TXT, content, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
 
-    public static void escreveLogPopulacao(List<Cromossomo> populacao, String path, Integer evolucao) throws IOException {
+    public void escreveLogPopulacao(List<Cromossomo> populacao, Path path, Integer evolucao) throws IOException {
         String title = "=============================[EVOLUÇÃO "+ evolucao +"]=============================\n\n";
 
-        String avalicoes = populacao.stream()
+        String avaliacoes = populacao.stream()
                 .sorted(Comparator.comparing(Cromossomo::getAvaliacao))
                 .map(pop -> String.format("[%d] Avaliação: %d", populacao.indexOf(pop) + 1, pop.getAvaliacao()))
                 .collect(Collectors.joining("\n"));
 
-        String content = title.concat(avalicoes).concat("\n\n");
+        String content = title.concat(avaliacoes).concat("\n\n");
 
-        Files.writeString(Paths.get(path), content, CREATE, APPEND);
+        Files.createDirectories(path.getParent());
+
+        Files.writeString(path, content, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
-
 }

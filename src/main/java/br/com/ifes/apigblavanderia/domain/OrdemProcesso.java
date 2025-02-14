@@ -54,8 +54,16 @@ public class OrdemProcesso implements Serializable, Cloneable {
         try {
             return (OrdemProcesso) super.clone();
         } catch (CloneNotSupportedException e) {
-            return new OrdemProcesso(this.id, this.prioridade, this.processos, this.nomeEmpresa, this.dataEntrega,
-                    this.dataPrevistaEntrega, this.diasAtraso, this.sequenciamento);
+            return new OrdemProcesso(
+                this.id, 
+                this.prioridade, 
+                this.processos, 
+                this.nomeEmpresa, 
+                this.dataEntrega,
+                this.dataPrevistaEntrega, 
+                this.diasAtraso, 
+                this.sequenciamento
+            );
         }
     }
 }

@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+app:
+  datetime-format: "yyyy-MM-dd'T'HH:mm:ss.SS"
+
+algoritmo-genetico:
+  cruzamento:
+    porcentagem: ${ALGORITMO_GENETICO_CRUZAMENTO_PORCENTAGEM:30}
+  mutacao:
+    porcentagem: ${ALGORITMO_GENETICO_MUTACAO_PORCENTAGEM:30}
+  populacao:
+    taxa-elitismo: ${ALGORITMO_GENETICO_POPULACAO_TAXA_ELITISMO:0.3}
+    diversidade: ${ALGORITMO_GENETICO_POPULACAO_DIVERSIDADE:50}
+    quantidade-pais-selecionados: ${ALGORITMO_GENETICO_POPULACAO_QUANTIDADE_PAIS_SELECIONADOS:9}
+  sequenciamento:
+    data-execucao: ${ALGORITMO_GENETICO_SEQUENCIAMENTO_DATA_EXECUCAO:2022-05-02}
