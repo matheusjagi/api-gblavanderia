@@ -1,9 +1,5 @@
 package br.com.ifes.apigblavanderia.service.util;
 
-import br.com.ifes.apigblavanderia.domain.Cromossomo;
-import br.com.ifes.apigblavanderia.domain.Minuto;
-import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -11,11 +7,14 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import br.com.ifes.apigblavanderia.domain.Cromossomo;
+import br.com.ifes.apigblavanderia.domain.Minuto;
+import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
 
 public final class AlgoritimoUtil {
 

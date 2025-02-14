@@ -19,7 +19,7 @@ public class AlgoritmoResource {
 
     @GetMapping("/{tamanhoInicialPopulacao}/{quantidadeEvolucoes}")
     public ResponseEntity<Long> otimizacaoPrioridadeOP(@PathVariable("tamanhoInicialPopulacao") Integer tamanhoInicialPopulacao,
-                                                 @PathVariable("quantidadeEvolucoes") Integer quantidadeEvolucoes) throws IOException {
+                                                       @PathVariable("quantidadeEvolucoes") Integer quantidadeEvolucoes) throws IOException {
         return ResponseEntity.ok(algoritmoService.evolucao(tamanhoInicialPopulacao, quantidadeEvolucoes));
     }
 }

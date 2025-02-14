@@ -1,16 +1,16 @@
 package br.com.ifes.apigblavanderia.service;
 
-import br.com.ifes.apigblavanderia.domain.Cromossomo;
-import br.com.ifes.apigblavanderia.service.util.AlgoritimoUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
+
+import org.springframework.stereotype.Service;
+
+import br.com.ifes.apigblavanderia.domain.Cromossomo;
+import br.com.ifes.apigblavanderia.service.util.AlgoritimoUtil;
 
 @Service
 public class SelecaoService {

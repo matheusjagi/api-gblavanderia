@@ -1,5 +1,6 @@
 package br.com.ifes.apigblavanderia.service;
 
+import br.com.ifes.apigblavanderia.config.ApplicationProperties;
 import br.com.ifes.apigblavanderia.domain.Cromossomo;
 import br.com.ifes.apigblavanderia.domain.Maquina;
 import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
@@ -23,10 +24,6 @@ import java.util.List;
 @Slf4j
 public class AlgoritmoService {
 
-    public static final Integer PORCENTAGEM_CRUZAMENTO = 30;
-    public static final Integer PORCENTAGEM_MUTACAO = 30;
-    public static final Integer QUANTIDADE_PAIS_SELECIONADOS = 9;
-
     private final OrdemProcessoRepository ordemProcessoRepository;
     private final ProcessoRepository processoRepository;
     private final MaquinaRepository maquinaRepository;
@@ -36,6 +33,8 @@ public class AlgoritmoService {
     private final SelecaoService selecaoService;
     private final MutacaoService mutacaoService;
     private final SequenciamentoService sequenciamentoService;
+    private final LogUtil logUtil;
+    private final ApplicationProperties env;
 
     public Long evolucao(Integer tamanhoInicialPopulacao, Integer evolucoes) throws IOException {
         List<Processo> processos = processoRepository.abasteceBaseDados();
@@ -50,28 +49,28 @@ public class AlgoritmoService {
             List<Cromossomo> novaPopulacao = new ArrayList<>();
 
             while (novaPopulacao.size() < tamanhoInicialPopulacao) {
-                List<Cromossomo> pais = new ArrayList<>(selecaoService.ranking(populacao, QUANTIDADE_PAIS_SELECIONADOS));
+                List<Cromossomo> pais = new ArrayList<>(selecaoService.ranking(populacao, env.getQuantidadePaisSelecionados()));
                 processoSelecaoParaAdicionarNovoIndividuoNaPopulacao(novaPopulacao, pais);
             }
 
             sequenciamentoService.sequenciamentoPorOrdemDeProcesso(maquinas, novaPopulacao);
 
-            LogUtil.escreveLogPopulacao(populacao, LogUtil.PATH_POPULACAO_TXT, iteracao);
-            LogUtil.escreveLogPopulacao(novaPopulacao, LogUtil.PATH_NOVA_POPULACAO_TXT, iteracao);
+            logUtil.escreveLogPopulacao(populacao, LogUtil.PATH_POPULACAO_TXT, iteracao);
+            logUtil.escreveLogPopulacao(novaPopulacao, LogUtil.PATH_NOVA_POPULACAO_TXT, iteracao);
 
             populacao = populacaoService.elitismo(populacao, novaPopulacao, tamanhoInicialPopulacao);
 
-            LogUtil.escreveLog(populacao, iteracao);
+            logUtil.escreveLog(populacao, iteracao, evolucoes);
         }
 
         return populacao.get(0).getAvaliacao();
     }
 
     private void processoSelecaoParaAdicionarNovoIndividuoNaPopulacao(List<Cromossomo> novaPopulacao, List<Cromossomo> pais) {
-        if (AlgoritimoUtil.sortearPorcentagem() <= PORCENTAGEM_CRUZAMENTO) {
+        if (AlgoritimoUtil.sortearPorcentagem() <= env.getPorcentagemCruzamento()) {
             Cromossomo filho = cruzamentoService.crossoverBaseadoEmMaioria(pais);
 
-            if (AlgoritimoUtil.sortearPorcentagem() <= PORCENTAGEM_MUTACAO) {
+            if (AlgoritimoUtil.sortearPorcentagem() <= env.getPorcentagemMutacao()) {
                 mutacaoService.mutacao(filho);
             }
 

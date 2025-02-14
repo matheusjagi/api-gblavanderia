@@ -1,17 +1,5 @@
 package br.com.ifes.apigblavanderia.service;
 
-import br.com.ifes.apigblavanderia.domain.Cromossomo;
-import br.com.ifes.apigblavanderia.domain.Maquina;
-import br.com.ifes.apigblavanderia.domain.Minuto;
-import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
-import br.com.ifes.apigblavanderia.domain.Processo;
-import br.com.ifes.apigblavanderia.domain.TempoTrabalhado;
-import br.com.ifes.apigblavanderia.service.util.AlgoritimoUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -19,37 +7,35 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import org.springframework.stereotype.Service;
+
+import br.com.ifes.apigblavanderia.config.ApplicationProperties;
+import br.com.ifes.apigblavanderia.domain.Cromossomo;
+import br.com.ifes.apigblavanderia.domain.Maquina;
+import br.com.ifes.apigblavanderia.domain.Minuto;
+import br.com.ifes.apigblavanderia.domain.OrdemProcesso;
+import br.com.ifes.apigblavanderia.domain.Processo;
+import br.com.ifes.apigblavanderia.domain.TempoTrabalhado;
+import br.com.ifes.apigblavanderia.service.util.AlgoritimoUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class SequenciamentoService {
 
     public static final Integer DAY = 1;
     public static final Integer WEEK = 5;
     public static final Integer HOUR_IN_MINUTES = 60;
-    public static final LocalDate DATA_EXECUCAO_SEQUENCIAMENTO = LocalDate.of(2022, Month.MAY, 2);
+
+    private final ApplicationProperties env;
 
     public void sequenciamentoPorOrdemDeProcesso(List<Maquina> maquinas, List<Cromossomo> populacao) {
         log.info("Realizando SEQUENCIAMENTO dos PROCESSOS...");
 
         populacao.forEach(cromossomo -> {
-            cromossomo.getGenes().forEach(op -> {
-                AtomicInteger terminoUltimoProcesso = new AtomicInteger(0);
-
-                op.getProcessos().forEach(processo -> {
-                    List<Maquina> maquinasRealizamProcesso = getMaquinasRealizamProcesso(maquinas, processo);
-
-                    maquinasRealizamProcesso.stream()
-                            .filter(mrp -> Objects.isNull(mrp.getTempoTrabalhado()))
-                            .findAny()
-                            .ifPresentOrElse(
-                                (maquina) -> inicializaTrabalhoDaMaquina(processo, maquina, terminoUltimoProcesso),
-                                () -> alocaProcesso(processo, maquinasRealizamProcesso, terminoUltimoProcesso)
-                            );
-
-                });
-
-                setDataPrevistaDaOP(op);
-            });
+            processaOrdemProcesso(maquinas, cromossomo.getGenes());
 
             setAvalicaoCromossomo(cromossomo);
             reinciaTempoTrabalhadoDasMaquinas(maquinas);
@@ -58,8 +44,33 @@ public class SequenciamentoService {
         log.info("SEQUENCIAMENTO finalizado!");
     }
 
+    private void processaOrdemProcesso(List<Maquina> maquinas, List<OrdemProcesso> ordemProcessos) {
+        ordemProcessos.forEach(op -> {
+            AtomicInteger terminoUltimoProcesso = new AtomicInteger(0);
+
+            processaProcesso(maquinas, op.getProcessos(), terminoUltimoProcesso);
+
+            setDataPrevistaDaOP(op);
+        });
+    }
+
+    private void processaProcesso(List<Maquina> maquinas, List<Processo> processos, AtomicInteger terminoUltimoProcesso) {
+        processos.forEach(processo -> {
+            List<Maquina> maquinasRealizamProcesso = getMaquinasRealizamProcesso(maquinas, processo);
+
+            maquinasRealizamProcesso.stream()
+                    .filter(mrp -> Objects.isNull(mrp.getTempoTrabalhado()))
+                    .findAny()
+                    .ifPresentOrElse(
+                        (maquina) -> inicializaTrabalhoDaMaquina(processo, maquina, terminoUltimoProcesso),
+                        () -> alocaProcesso(processo, maquinasRealizamProcesso, terminoUltimoProcesso)
+                    );
+
+        });
+    }
+
     private void reinciaTempoTrabalhadoDasMaquinas(List<Maquina> maquinas) {
-        maquinas.forEach(maquina -> maquina.setTempoTrabalhado(new TempoTrabalhado(DATA_EXECUCAO_SEQUENCIAMENTO)));
+        maquinas.forEach(maquina -> maquina.setTempoTrabalhado(new TempoTrabalhado(env.getDataExecucaoSequenciamento())));
     }
 
     public void setAvalicaoCromossomo(Cromossomo cromossomo) {
@@ -92,17 +103,26 @@ public class SequenciamentoService {
     }
 
     private void adicionaUmDiaDeTrabalhoNaMaquina(Maquina maquina) {
-        maquina.getTempoTrabalhado().getTempo().addAll(AlgoritimoUtil.criaDiaTrabalhadoEmMinutos());
-        maquina.getTempoTrabalhado().setTotalDiasTrabalhados(maquina.getTempoTrabalhado().getTotalDiasTrabalhados() + DAY);
+        maquina.getTempoTrabalhado().getTempo()
+            .addAll(AlgoritimoUtil.criaDiaTrabalhadoEmMinutos());
+
+        maquina.getTempoTrabalhado()
+            .setTotalDiasTrabalhados(maquina.getTempoTrabalhado().getTotalDiasTrabalhados() + DAY);
     }
 
     private void adicionaUmaSemanaDeTrabalhoNaMaquina(Maquina maquina) {
-        maquina.getTempoTrabalhado().getTempo().addAll(AlgoritimoUtil.criaSemanaTrabalhadaEmMinutos());
-        maquina.getTempoTrabalhado().setTotalDiasTrabalhados(maquina.getTempoTrabalhado().getTotalDiasTrabalhados() + WEEK);
+        maquina.getTempoTrabalhado().getTempo()
+            .addAll(AlgoritimoUtil.criaSemanaTrabalhadaEmMinutos());
+
+        maquina.getTempoTrabalhado()
+            .setTotalDiasTrabalhados(maquina.getTempoTrabalhado().getTotalDiasTrabalhados() + WEEK);
     }
 
-    private void tentaAlocarProcessoNaMaquina(Processo processo, AtomicBoolean processoAlocado, Maquina maquina,
-                                              Integer minutosGastosComProcesso, AtomicInteger terminoUltimoProcesso) {
+    private void tentaAlocarProcessoNaMaquina(Processo processo, 
+                                              AtomicBoolean processoAlocado, 
+                                              Maquina maquina,
+                                              Integer minutosGastosComProcesso, 
+                                              AtomicInteger terminoUltimoProcesso) {
 
         Integer tamanhoTempoTrabalhado = maquina.getTempoTrabalhado().getTempo().size() - 1;
         AtomicBoolean terminoProcessoMaiorQueTempo = new AtomicBoolean(true);
@@ -130,7 +150,7 @@ public class SequenciamentoService {
     }
 
     private void inicializaTrabalhoDaMaquina(Processo processo, Maquina maquina, AtomicInteger terminoUltimoProcesso) {
-        maquina.setTempoTrabalhado(new TempoTrabalhado(DATA_EXECUCAO_SEQUENCIAMENTO));
+        maquina.setTempoTrabalhado(new TempoTrabalhado(env.getDataExecucaoSequenciamento()));
         Integer minutosGastosComProcesso = getMinutosGastosComProcesso(processo.getQuantidadePecas(), maquina.getProducaoMaximaPorHora());
 
         if (terminoUltimoProcesso.get() == 0) {
