@@ -1,6 +1,6 @@
 # api-gblavanderia
 
-**api-gblavanderia** é uma aplicação backend desenvolvida em Java utilizando o framework Spring Boot. Esta API foi projetada para processar dados de lavanderias a partir de arquivos CSV, sem necessidade de banco de dados.
+**api-gblavanderia** é uma aplicação backend desenvolvida em Java utilizando o framework Spring Boot. Esta API foi projetada para processar dados da empresa GB Lavanderia a partir de arquivos CSV, executando um Algoritmo Genético para otimização do sequência de produção de ordens de serviço em máquinas paralelas.
 
 ## Índice
 
